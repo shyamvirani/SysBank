@@ -36,7 +36,7 @@ public class UserService {
     	return true;
     	
     }
-    public User findOne(String username) {
+    public Optional<User> findOne(String username) {
     	return userRepository.findByUsername(username);
     }
 

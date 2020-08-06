@@ -26,8 +26,7 @@ public class UserController {
         return userService.findAll();
     }
 
-    //@Secured("ROLE_USER")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     ////@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
     public Optional<User> getOne(@PathVariable(value = "id") Long id){

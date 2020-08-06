@@ -28,10 +28,13 @@ public class AccountService {
 	@Autowired
 	private AccountRepository accountRepository;
 
+	@Autowired
+	private AuthService authService;
+	
 	public Account createAccount(Account account) {
 		if (!customerRepository.findById(account.getCustomer().getCustomerId()).isPresent()) {
 			throw new CustomerNotFoundException(
-					"No such customer with customer Id : " + account.getCustomer().getCustomerId());
+					"Nocustomer with customer Id : " + account.getCustomer().getCustomerId());
 		}
 		account.setAccountCreatedOn(now().plusMillis(19800000));
 		account.setAccountUpdatedOn(now().plusMillis(19800000));
@@ -50,13 +53,11 @@ public class AccountService {
 	public String depositAmount(Account account) {
 		Account existingAccount = accountRepository.findById(account.getAccountId())
 				.orElseThrow(() -> new AccountNotFoundException("account not found  : " + account.getAccountId()));
-		Customer customer = customerRepository.findById(account.getCustomer().getCustomerId())
-				.orElseThrow(() -> new CustomerNotFoundException("customer not found"));
-		account.setAccountCreatedOn(existingAccount.getAccountCreatedOn());
 		account.setAccountId(existingAccount.getAccountId());
+		account.setAccountCreatedOn(existingAccount.getAccountCreatedOn());
 		account.setAccountStatus(existingAccount.getAccountStatus());
 		account.setAccountType(existingAccount.getAccountType());
-		account.setCustomer(customer);
+		account.setCustomer(existingAccount.getCustomer());
 		account.setAccountUpdatedOn(now().plusMillis(19800000));
 		account.setBalance(existingAccount.getBalance() + account.getBalance());
 		accountRepository.save(account);
@@ -65,16 +66,31 @@ public class AccountService {
 	}
 
 	@Transactional
-	public void withdrawAmount(Account account) {
+	public String withdrawAmount(Account account) {
 		Account existingAccount = accountRepository.findById(account.getAccountId())
 				.orElseThrow(() -> new AccountNotFoundException("account not found with : " + account.getAccountId()));
+
 		if (existingAccount.getBalance() < account.getBalance()) {
 			throw new InsufficientBalanceException("low balance");
 		} else {
-			existingAccount.setBalance(existingAccount.getBalance() - account.getBalance());
-			accountRepository.save(existingAccount);
-		
+	
+
+			if (existingAccount.getCustomer().getUser().getUsername()
+					.equals(authService.getCurrentUser().getUsername())) {
+				account.setAccountId(existingAccount.getAccountId());
+				account.setAccountCreatedOn(existingAccount.getAccountCreatedOn());
+				account.setAccountStatus(existingAccount.getAccountStatus());
+				account.setAccountType(existingAccount.getAccountType());
+				account.setCustomer(existingAccount.getCustomer());
+				account.setAccountUpdatedOn(now().plusMillis(19800000));
+				account.setBalance(existingAccount.getBalance() - account.getBalance());
+				accountRepository.save(account);
+				return "amount withdraw successfully";
+			} else {
+				return "cant withdraw";
+			}
 		}
+
 	}
 
 	public Account updateAccount(Account account) {
@@ -92,11 +108,12 @@ public class AccountService {
 	}
 
 	public String deactivateAccount(Long id) {
-	        Account account = accountRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException("customer not found with customerId : " + id));
-	        account.setAccountStatus("Deactivated");
-	        account.setAccountUpdatedOn(now().plusMillis(19800000));
-			accountRepository.save(account);
-	        return "account successfully deactivated";
-	    }
+		Account account = accountRepository.findById(id)
+				.orElseThrow(() -> new CustomerNotFoundException("customer not found with customerId : " + id));
+		account.setAccountStatus("Deactivated");
+		account.setAccountUpdatedOn(now().plusMillis(19800000));
+		accountRepository.save(account);
+		return "account successfully deactivated";
+	}
 
 }

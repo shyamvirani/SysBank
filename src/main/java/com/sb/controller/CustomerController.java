@@ -52,9 +52,9 @@ public class CustomerController {
     
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/customer/{id}")
-    public String deleteCustomer(@PathVariable("id") Long id){
-        customerService.deactivateCustomer(id);
-        return "customer deactivated";
+    public ResponseEntity<Customer> deactivateCustomer(@PathVariable("id") Long id){
+        return ResponseEntity.ok(customerService.deactivateCustomer(id));
+
     }
 	
 }

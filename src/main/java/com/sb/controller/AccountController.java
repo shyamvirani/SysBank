@@ -50,18 +50,18 @@ public class AccountController {
 	public void deactivateAccount(@PathVariable("id") Long id){
 		accountService.deactivateAccount(id);
 	}
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
 	@PutMapping("/account/deposit")
-	public String depositAmount(@RequestBody Account account){
-		accountService.depositAmount(account);
-		return "deposit amount successfully";
+	public String  depositAmount(@RequestBody Account account){
+		return accountService.depositAmount(account);
+	
 
 	}
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
 	@PutMapping("/account/withdraw")
 	public String withdrawAmount(@RequestBody Account account){
-		accountService.withdrawAmount(account);
-		return "Amount withdrawn successfully";
+		return accountService.withdrawAmount(account);
+	
 	}
 	
 	

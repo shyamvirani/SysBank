@@ -1,5 +1,7 @@
 package com.sb.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,7 +56,8 @@ public class AuthenticationController {
         String token = jwtTokenUtil.generateToken(authentication);
         AuthToken authToken=new AuthToken();
         authToken.setToken(token);
-        User user=userService.findOne(loginUser.getUsername());
+        Optional<User> u=userService.findOne(loginUser.getUsername());
+        User user=u.get();
         authToken.setUser(user);
         authTokenRepository.save(authToken);
         

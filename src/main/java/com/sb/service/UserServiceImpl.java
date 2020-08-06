@@ -1,6 +1,7 @@
 package com.sb.service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ public class UserServiceImpl implements UserDetailsService {
 	private BCryptPasswordEncoder bcryptEncoder;
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username);
+		Optional<User> u = userRepository.findByUsername(username);
+		User user=u.get();
 		if(user == null){
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
